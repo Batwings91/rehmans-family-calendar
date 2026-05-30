@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Rehmans Family Calendar 🗓️</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FF6B35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Rehmans">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --omar: #FF6B35;
+      --nini: #9B59B6;
+      --farooq: #3498DB;
+      --all: #27AE60;
+      --caldecote: #2f80ed;
+      --bg: #FDF6EE;
+      --surface: #FFFFFF;
+      --text: #2C2C2C;
+      --muted: #7f7f7f;
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 72px;
+    }
+    body.compact-mode .summary-card,
+    body.compact-mode .event-list-card {
+      display: none;
+    }
+    header {
+      background: var(--surface);
+      text-align: center;
+      padding: 16px 16px 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    header h1 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .you-are {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .you-are button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+    }
+    .top-strip { padding: 10px 12px 4px; }
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .month-nav-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .month-nav h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      min-width: 110px;
+      text-align: center;
+    }
+    .nav-btn, .today-btn, .toolbar-btn, .modal-btn, .event-btn {
+      background: var(--surface);
+      border: 1.5px solid #e0d6cc;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .nav-btn {
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px 0;
+      flex-wrap: wrap;
+    }
+    .summary-card, .event-list-card {
+      margin: 10px 12px 0;
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .summary-card { border-left: 4px solid var(--all); }
+    .event-list-card { border-left: 4px solid var(--caldecote); }
+    .summary-card h3, .event-list-card h3 {
+      font-size: 0.86rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .summary-list, .event-list {
+      display: grid;
+      gap: 6px;
+      font-size: 0.82rem;
+    }
+    .event-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid #f1ece5;
+    }
+    .event-item:first-child { border-top: none; }
+    .event-meta { color: var(--muted); font-size: 0.74rem; }
+    .cal-wrap {
+      margin: 12px;
+      background: var(--surface);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .dow-header, .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+    .dow-header {
+      background: #faf6f1;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px 0;
+    }
+    .day {
+      min-height: 124px;
+      border-top: 1px solid #f3ede6;
+      border-right: 1px solid #f3ede6;
+      padding: 8px 6px;
+      position: relative;
+      background: white;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .day:nth-child(7n) { border-right: none; }
+    .day.empty { background: #fcfaf7; }
+    .day.today-cell { box-shadow: inset 0 0 0 2px #ffd3bf; }
+    .day.has-all { background: #f4fbf5; }
+    .day.caldecote { background: #eef6ff; }
+    .day-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+    .day-num { font-size: 0.86rem; font-weight: 800; }
+    .day-badges {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      gap: 4px;
+      overflow: hidden;
+      white-space: nowrap;
+      min-width: 0;
+      flex: 1;
+    }
+    .tag-chip {
+      border: none;
+      border-radius: 999px;
+      padding: 2px 6px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      background: #edf2ff;
+      color: #476286;
+      max-width: 72px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: top;
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+    .tag-chip.caldecote-chip { background: #d9ebff; color: #1d5faa; }
+    .tag-chip.kids-chip { background: #ffe7cc; color: #a85a00; }
+    .confirmed-toggle {
+      margin-top: 6px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: #2f5d34;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .confirmed-toggle input { accent-color: #27AE60; }
+    .slots { display: grid; gap: 6px; }
+    .slot-btn {
+      border: 1px solid #eadfd2;
+      border-radius: 10px;
+      padding: 8px 0;
+      background: #fffaf5;
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .slot-owners {
+      display: block;
+      font-size: 0.56rem;
+      font-weight: 700;
+      margin-top: 2px;
+      line-height: 1.1;
+      opacity: 0.9;
+    }
+    .slot-btn.mine { background: color-mix(in srgb, var(--user-color, var(--omar)) 14%, white); color: var(--user-color, var(--omar)); border-color: var(--user-color, var(--omar)); }
+    .slot-btn.all-free { background: #e8f5e9; color: #1b5e20; border-color: var(--all); }
+    .slot-btn.partial { background: #f6f1ff; color: #6b4aa1; border-color: #c6b2e6; }
+    .slot-btn.busy { opacity: 0.8; }
+    body.compact-mode .day {
+      min-height: 64px;
+      padding: 5px 4px;
+    }
+    body.compact-mode .day-top {
+      margin-bottom: 4px;
+      align-items: flex-start;
+    }
+    body.compact-mode .day-num {
+      font-size: 0.76rem;
+    }
+    body.compact-mode .tag-chip {
+      max-width: 40px;
+      font-size: 0.52rem;
+      padding: 1px 4px;
+    }
+    body.compact-mode .slots {
+      gap: 3px;
+    }
+    body.compact-mode .slot-btn {
+      font-size: 0.58rem;
+      padding: 3px 0;
+      border-radius: 7px;
+    }
+    body.compact-mode .slot-owners {
+      font-size: 0.42rem;
+      margin-top: 1px;
+    }
+    body.compact-mode .slot-btn.all-free { font-weight: 900; }
+    body.compact-mode .slot-btn::after {
+      display: none;
+    }
+    #user-overlay, #event-modal, #day-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 44, 44, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 20px;
+    }
+    .panel, .modal-card {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      width: min(460px, 100%);
+      text-align: center;
+    }
+    .user-btns { display: grid; gap: 10px; margin-top: 14px; }
+    .user-btn {
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: none;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+    }
+    .user-btn.omar { background: var(--omar); }
+    .user-btn.nini { background: var(--nini); }
+    .user-btn.farooq { background: var(--farooq); }
+    .modal-card { text-align: left; }
+    .modal-card h3 { margin-bottom: 10px; }
+    .modal-field { margin-bottom: 10px; }
+    .modal-field label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .modal-field input, .modal-field select {
+      width: 100%; padding: 10px; border: 1px solid #ddd3c7; border-radius: 10px; font: inherit;
+    }
+    .hidden-field { display: none; }
+    .attendee-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .attendee-pill {
+      border: 1px solid #ddd3c7; border-radius: 999px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem;
+    }
+    .attendee-pill.active { background: #f3efe9; border-color: #bda992; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+    .day-modal-slot-grid { display: grid; gap: 8px; margin-top: 12px; }
+    .day-modal-events { margin-top: 12px; display: grid; gap: 8px; }
+    .day-modal-event { font-size: 0.78rem; padding: 8px 10px; background: #f7f4ef; border-radius: 10px; }
+    #sync-bar {
+      text-align: center;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 10px 12px 14px;
+      color: #2e7d32;
+    }
+    @media (max-width: 768px) {
+      body:not(.compact-mode) .dow-header,
+      body:not(.compact-mode) .cal-grid {
+        min-width: 0;
+      }
+      body:not(.compact-mode) .day {
+        padding: 6px 4px;
+      }
+      body:not(.compact-mode) .day-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      body:not(.compact-mode) .day-badges {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      body:not(.compact-mode) .tag-chip {
+        max-width: 100%;
+      }
+      body:not(.compact-mode) .slot-btn {
+        font-size: 0.62rem;
+        padding: 6px 0;
+      }
+      body:not(.compact-mode) .slot-owners {
+        font-size: 0.48rem;
+      }
+    }
+    @media (min-width: 900px) {
+      body { max-width: 960px; margin: 0 auto; }
+      .day { min-height: 132px; }
+    }
+  </style>
+</head>
+<body>
+<div id="user-overlay">
+  <div class="panel">
+    <h2>👋 Who are you?</h2>
+    <p style="margin-top:6px;color:#777;font-size:0.9rem;">Pick your name to view and update your availability</p>
+    <div class="user-btns">
+      <button class="user-btn omar" onclick="selectUser('omar')">Omar 🟠</button>
+      <button class="user-btn nini" onclick="selectUser('nini')">Nini 🟣</button>
+      <button class="user-btn farooq" onclick="selectUser('farooq')">Farooq / Steph 🔵</button>
+    </div>
+  </div>
+</div>
+<header>
+  <h1><span>Rehmans Family Calendar 🗓️</span></h1>
+  <div class="you-are" id="you-are-line"></div>
+</header>
+<div class="top-strip">
+  <div class="month-nav">
+    <button class="nav-btn" id="prev-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="month-nav-center">
+      <h2 id="month-label"></h2>
+      <div style="text-align:center;margin-top:3px">
+        <button class="today-btn" onclick="goToday()">Today</button>
+      </div>
+    </div>
+    <button class="nav-btn" id="next-btn" onclick="changeMonth(1)">›</button>
+  </div>
+</div>
+<div class="toolbar">
+  <button class="toolbar-btn" onclick="openEventModal()">+ Add special event</button>
+  <button class="toolbar-btn" onclick="toggleCaldecoteWeekends()" id="caldecote-toggle-btn">Caldecote weekends: off</button>
+  <button class="toolbar-btn" onclick="toggleCompactMode()" id="compact-toggle-btn">Compact mode: off</button>
+  <button class="toolbar-btn" onclick="exportICS()">Export calendar (.ics)</button>
+</div>
+<div class="summary-card" id="summary-card"></div>
+<div class="event-list-card" id="event-list-card"></div>
+<div class="cal-wrap">
+  <div class="dow-header">
+    <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+<div id="sync-bar">Ready</div>
+<div id="event-modal">
+  <div class="modal-card">
+    <h3 id="event-modal-title">Add family event</h3>
+    <div class="modal-field" id="event-title-field">
+      <label for="event-title">Title</label>
+      <input id="event-title" type="text" placeholder="e.g. Farooq / Steph dinner">
+    </div>
+    <div class="modal-field">
+      <label for="event-date">Start date</label>
+      <input id="event-date" type="date">
+    </div>
+    <div class="modal-field" id="event-end-date-field">
+      <label for="event-end-date">End date (optional)</label>
+      <input id="event-end-date" type="date">
+    </div>
+    <div class="modal-field hidden-field" id="kids-help-field" style="font-size:0.76rem;color:var(--muted);line-height:1.35;">
+      Marks a recurring kids weekend from <strong>Friday evening to Sunday evening</strong>, every <strong>2 weeks</strong> until the date above.
+    </div>
+    <div class="modal-field">
+      <label for="event-type">Type</label>
+      <select id="event-type" onchange="handleEventTypeChange()">
+        <option value="important">Important event</option>
+        <option value="caldecote">Caldecote weekend</option>
+        <option value="kids-omar">Kids with Omar</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Attendees</label>
+      <div class="attendee-list" id="attendee-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeEventModal()">Cancel</button>
+      <button class="modal-btn" id="delete-event-btn" onclick="deleteCurrentEvent()" style="display:none;">Delete</button>
+      <button class="modal-btn" onclick="saveEventModal()">Save</button>
+    </div>
+  </div>
+</div>
+<div id="day-modal">
+  <div class="modal-card">
+    <h3 id="day-modal-title">Day details</h3>
+    <div class="day-modal-slot-grid" id="day-modal-slot-grid"></div>
+    <div class="day-modal-events" id="day-modal-events"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeDayModal()">Close</button>
+    </div>
+  </div>
+</div>
+<!-- Supabase client (UMD build exposes a global `supabase`), matching omar-eniko-calendar -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+
+// ============================================================
+// Supabase config. The anon key is PUBLIC by design — safe to
+// commit and ship in the browser. GitHub Pages has no env-var
+// dashboard, so these two values live here in the file (same as
+// omar-eniko-calendar). NEVER put the service_role key here.
+// Fill these in with your project's values before deploying:
+// ============================================================
+const SUPABASE_URL = 'https://cnylugjbbjyqlryhpetf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNueWx1Z2piYmp5cWxyeWhwZXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTg1MDksImV4cCI6MjA5NDU5NDUwOX0.iMZ8jA9gVqxzxVLzKJ-73ssnll6DPzn_8iMF_-sJgq4';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let loadedOk = false; // guard: never save before a successful load (prevents wiping the shared doc)
+
+const STORAGE_KEY = 'rehmans_calendar_user';
+const COMPACT_KEY = 'rehmans_calendar_compact_mode';
+const SLOTS = ['morning', 'afternoon', 'evening'];
+const SLOT_LABELS = { morning: 'AM', afternoon: 'PM', evening: 'Eve' };
+const USERS = ['omar', 'nini', 'farooq'];
+const USER_DISPLAY = { omar: 'Omar 🟠', nini: 'Nini 🟣', farooq: 'Farooq / Steph 🔵' };
+const USER_COLORS = { omar: '#FF6B35', nini: '#9B59B6', farooq: '#3498DB' };
+const BH_URL = 'https://www.gov.uk/bank-holidays.json';
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=52.2053&longitude=0.1218&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FLondon&forecast_days=14';
+let bankHolidays = {};
+let weatherData = {};
+let currentUser = localStorage.getItem(STORAGE_KEY);
+const savedCompactPreference = localStorage.getItem(COMPACT_KEY);
+let compactMode = savedCompactPreference === null ? window.matchMedia('(max-width: 768px)').matches : savedCompactPreference === '1';
+let viewDate = new Date();
+viewDate.setDate(1);
+let data = { omar: {}, nini: {}, farooq: {}, notes: { omar: {}, nini: {}, farooq: {} }, lastUpdated: {}, events: [], dayTags: {}, confirmations: {}, settings: { caldecoteWeekendsOn: false } };
+let pendingSave = false;
+let saveTimer = null;
+let editingEventId = null;
+let activeDayModalDate = null;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const MIN_MONTH = new Date(today.getFullYear(), 0, 1);
+const MAX_MONTH = new Date(today.getFullYear() + 1, 11, 1);
+async function init() {
+  await Promise.all([loadData(), loadBankHolidays(), loadWeather()]);
+  ensureDefaults();
+  applyCompactMode();
+  if (!currentUser) {
+    document.getElementById('user-overlay').style.display = 'flex';
+  } else {
+    applyUserStyle();
+    updateHeader();
+  }
+  renderAll();
+  setInterval(refreshData, 30000);
+}
+function ensureDefaults() {
+  if (!data.settings) data.settings = { caldecoteWeekendsOn: false };
+  if (typeof data.settings.caldecoteWeekendsOn !== 'boolean') data.settings.caldecoteWeekendsOn = false;
+  if (!Array.isArray(data.events)) data.events = [];
+  if (!data.confirmations || typeof data.confirmations !== 'object') data.confirmations = {};
+  data.events = data.events.filter(event => !(event.type === 'caldecote' && event.generated));
+}
+function selectUser(user) {
+  currentUser = user;
+  localStorage.setItem(STORAGE_KEY, user);
+  document.getElementById('user-overlay').style.display = 'none';
+  applyUserStyle();
+  updateHeader();
+  renderAll();
+}
+function changeUser() {
+  localStorage.removeItem(STORAGE_KEY);
+  currentUser = null;
+  document.getElementById('user-overlay').style.display = 'flex';
+}
+function applyUserStyle() {
+  if (!currentUser) return;
+  document.documentElement.style.setProperty('--user-color', USER_COLORS[currentUser]);
+}
+function updateHeader() {
+  if (!currentUser) return;
+  document.getElementById('you-are-line').innerHTML = `You are ${USER_DISPLAY[currentUser]} <button onclick="changeUser()">[change]</button>`;
+}
+function toggleCompactMode() {
+  compactMode = !compactMode;
+  localStorage.setItem(COMPACT_KEY, compactMode ? '1' : '0');
+  applyCompactMode();
+  renderAll();
+}
+function applyCompactMode() {
+  document.body.classList.toggle('compact-mode', compactMode);
+}
+function changeMonth(delta) {
+  viewDate.setMonth(viewDate.getMonth() + delta);
+  if (viewDate < MIN_MONTH) viewDate = new Date(MIN_MONTH);
+  if (viewDate > MAX_MONTH) viewDate = new Date(MAX_MONTH);
+  renderAll();
+}
+function goToday() {
+  viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  renderAll();
+}
+function renderAll() {
+  renderMonthLabel();
+  renderSummary();
+  renderEventList();
+  renderCalendar();
+  renderSyncBar();
+  renderToolbar();
+}
+function renderMonthLabel() {
+  document.getElementById('month-label').textContent = viewDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('prev-btn').disabled = viewDate <= MIN_MONTH;
+  document.getElementById('next-btn').disabled = viewDate >= MAX_MONTH;
+}
+function renderToolbar() {
+  document.getElementById('caldecote-toggle-btn').textContent = `Caldecote weekends: ${data.settings.caldecoteWeekendsOn ? 'on' : 'off'}`;
+  document.getElementById('compact-toggle-btn').textContent = `Compact mode: ${compactMode ? 'on' : 'off'}`;
+}
+function renderSummary() {
+  const sharedDays = getUpcomingFullySharedDays().slice(0, 3);
+  const lines = sharedDays.length
+    ? sharedDays.map(day => {
+        const weather = weatherData[day.date];
+        const weatherText = weather ? `, ${weather.min} to ${weather.max}°C` : '';
+        return `<div>✅ ${formatDay(day.date)} has all three free: ${day.slots.join(', ')}${weatherText}</div>`;
+      }).join('')
+    : '<div>No fully-shared days yet, start marking availability.</div>';
+  document.getElementById('summary-card').innerHTML = `<h3>Best family matches</h3><div class="summary-list">${lines}</div>`;
+}
+function renderEventList() {
+  const events = sortedUpcomingEvents().filter(event => !(event.type === 'caldecote' && event.generated)).slice(0, 5);
+  const html = events.length
+    ? events.map(event => {
+      const displayDate = event.occurrenceDate || event.date;
+      const meta = event.type === 'caldecote'
+        ? (event.endDate && event.endDate > event.date ? `Caldecote weekend · ${formatDay(event.date)} to ${formatDay(event.endDate)}` : 'Caldecote weekend')
+        : event.type === 'kids-omar'
+          ? `Recurring Omar kids weekend · every 2 weeks · Fri eve to Sun eve · until ${formatDay(event.endDate)}`
+          : (event.endDate && event.endDate > event.date ? `Family event · ${formatDay(event.date)} to ${formatDay(event.endDate)}` : 'Family event');
+      const editButton = `<button class="event-btn" onclick="openEventModal('${event.id}')">Edit</button>`;
+      return `
+      <div class="event-item">
+        <div>
+          <div><strong>${escapeHtml(event.title)}</strong></div>
+          <div class="event-meta">${formatDay(displayDate)} · ${meta} · ${(event.attendees || []).map(a => USER_DISPLAY[a]).join(', ')}</div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="event-btn" onclick="jumpToDate('${displayDate}')">View</button>
+          ${editButton}
+        </div>
+      </div>
+    `;
+    }).join('')
+    : '<div class="event-meta">No custom special events yet. Add one above.</div>';
+  document.getElementById('event-list-card').innerHTML = `<h3>Upcoming family events</h3><div class="event-list">${html}</div>`;
+}
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  let startDow = (firstDay.getDay() + 6) % 7;
+  for (let i = 0; i < startDow; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'day empty';
+    grid.appendChild(empty);
+  }
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const cellDate = new Date(year, month, d);
+    const key = isoDate(cellDate);
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    if (cellDate.getTime() === today.getTime()) cell.classList.add('today-cell');
+    const shared = sharedSlots(key);
+    const events = eventsForDate(key);
+    const isCaldecote = events.some(e => e.type === 'caldecote');
+    const confirmed = !!data.confirmations[key];
+    if (shared.length === 3) cell.classList.add('has-all');
+    if (isCaldecote) cell.classList.add('caldecote');
+    const top = document.createElement('div');
+    top.className = 'day-top';
+    const bh = bankHolidays[key] ? `<span class="tag-chip">BH</span>` : '';
+    const eventBadges = events.map(e => {
+      const label = e.type === 'caldecote' ? 'Caldecote' : e.type === 'kids-omar' ? 'Omar kids' : escapeHtml(e.title || 'Event');
+      const clickHandler = e.type === 'kids-omar' ? `openEventModal('${e.id}')` : `openEventModal('${e.id}')`;
+      const titleText = e.type === 'kids-omar'
+        ? `Omar kids, every 2 weeks, Fri eve to Sun eve, until ${e.endDate ? formatDay(e.endDate) : ''}`
+        : escapeHtml(e.title || '');
+      return `<button class="tag-chip ${e.type === 'caldecote' ? 'caldecote-chip' : e.type === 'kids-omar' ? 'kids-chip' : ''}" title="${titleText}" onclick="${clickHandler}">${label}</button>`;
+    }).join('');
+    top.innerHTML = `<div class="day-num">${d}</div><div class="day-badges">${bh}${eventBadges}</div>`;
+    cell.appendChild(top);
+    const slotsEl = document.createElement('div');
+    slotsEl.className = 'slots';
+    for (const slot of SLOTS) {
+      const btn = document.createElement('button');
+      btn.className = 'slot-btn';
+      const state = getSlotSummary(key, slot);
+      if (compactMode) {
+        if (state.allFree) {
+          btn.classList.add('all-free');
+          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || 'all'}</span>`;
+        } else if (state.currentUserFree) {
+          btn.classList.add('mine');
+          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || ''}</span>`;
+        } else if (state.someFree) {
+          btn.classList.add('partial');
+          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || ''}</span>`;
+        } else {
+          btn.classList.add('busy');
+          btn.innerHTML = `·<span class="slot-owners">&nbsp;</span>`;
+        }
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openDayModal(key);
+        });
+      } else {
+        if (state.allFree) {
+          btn.classList.add('all-free');
+          btn.innerHTML = `${SLOT_LABELS[slot]} · all free<span class="slot-owners">${state.ownerLabel}</span>`;
+        } else if (state.currentUserFree) {
+          btn.classList.add('mine');
+          btn.innerHTML = `${SLOT_LABELS[slot]} · you free<span class="slot-owners">${state.ownerLabel}</span>`;
+        } else if (state.someFree) {
+          btn.classList.add('partial');
+          btn.innerHTML = `${SLOT_LABELS[slot]} · ${state.freeUsers.length} free<span class="slot-owners">${state.ownerLabel}</span>`;
+        } else {
+          btn.classList.add('busy');
+          btn.innerHTML = `${SLOT_LABELS[slot]} · none<span class="slot-owners">&nbsp;</span>`;
+        }
+        btn.addEventListener('click', () => toggleSlot(key, slot));
+      }
+      slotsEl.appendChild(btn);
+    }
+    cell.appendChild(slotsEl);
+    if (shared.length) {
+      const confirmEl = document.createElement('label');
+      confirmEl.className = 'confirmed-toggle';
+      confirmEl.innerHTML = `<input type="checkbox" ${confirmed ? 'checked' : ''} onchange="toggleConfirmedDay('${key}')"> CONFIRMED?`;
+      cell.appendChild(confirmEl);
+    }
+    if (compactMode) {
+      cell.addEventListener('click', () => openDayModal(key));
+    }
+    grid.appendChild(cell);
+  }
+}
+function getSlotSummary(dateKey, slot) {
+  const freeUsers = USERS.filter(user => getSlotState(user, dateKey, slot) === 'free');
+  return {
+    freeUsers,
+    someFree: freeUsers.length > 0,
+    allFree: freeUsers.length === USERS.length,
+    currentUserFree: currentUser ? freeUsers.includes(currentUser) : false,
+    ownerLabel: freeUsers.map(user => user === 'omar' ? 'O' : user === 'nini' ? 'N' : 'F/S').join(' ')
+  };
+}
+function toggleSlot(dateKey, slot) {
+  if (!currentUser) return;
+  if (!data[currentUser][dateKey]) data[currentUser][dateKey] = {};
+  const current = data[currentUser][dateKey][slot] || 'off';
+  const next = current === 'off' ? 'free' : 'off';
+  if (next === 'off') delete data[currentUser][dateKey][slot];
+  else data[currentUser][dateKey][slot] = next;
+  if (!Object.keys(data[currentUser][dateKey]).length) delete data[currentUser][dateKey];
+  data.lastUpdated[currentUser] = new Date().toISOString();
+  scheduleSave();
+  renderAll();
+  if (activeDayModalDate === dateKey) renderDayModal();
+}
+function getSlotState(user, dateKey, slot) {
+  return data[user]?.[dateKey]?.[slot] || 'off';
+}
+function toggleConfirmedDay(dateKey) {
+  data.confirmations[dateKey] = !data.confirmations[dateKey];
+  if (!data.confirmations[dateKey]) delete data.confirmations[dateKey];
+  scheduleSave();
+  renderAll();
+  if (activeDayModalDate === dateKey) renderDayModal();
+}
+function sharedSlots(dateKey) {
+  return SLOTS.filter(slot => USERS.every(user => getSlotState(user, dateKey, slot) === 'free'));
+}
+function getUpcomingFullySharedDays() {
+  const out = [];
+  for (let i = 0; i < 90; i++) {
+    const d = addDays(today, i);
+    const key = isoDate(d);
+    const slots = sharedSlots(key);
+    if (slots.length) out.push({ date: key, slots });
+  }
+  return out;
+}
+function expandEvent(event) {
+  if (event.type === 'kids-omar' && event.repeatEveryDays && event.endDate) {
+    const out = [];
+    let start = new Date(`${event.date}T12:00:00`);
+    const end = new Date(`${event.endDate}T12:00:00`);
+    while (start <= end) {
+      for (let i = 0; i < 3; i++) {
+        const day = addDays(start, i);
+        if (day <= end) {
+          out.push({
+            ...event,
+            occurrenceDate: isoDate(day),
+            occurrenceStart: isoDate(start),
+            generatedOccurrence: true,
+            title: 'Omar kids',
+            spanLabel: i === 0 ? 'Fri eve' : i === 1 ? 'Sat' : 'Sun eve'
+          });
+        }
+      }
+      start = addDays(start, event.repeatEveryDays);
+    }
+    return out;
+  }
+  if (event.endDate && event.endDate > event.date) {
+    const out = [];
+    let day = new Date(`${event.date}T12:00:00`);
+    const end = new Date(`${event.endDate}T12:00:00`);
+    while (day <= end) {
+      out.push({
+        ...event,
+        occurrenceDate: isoDate(day),
+        occurrenceStart: event.date,
+        generatedOccurrence: isoDate(day) !== event.date,
+        spanLabel: `${formatDay(event.date)} to ${formatDay(event.endDate)}`
+      });
+      day = addDays(day, 1);
+    }
+    return out;
+  }
+  return [event];
+}
+function allExpandedEvents() {
+  return (data.events || []).flatMap(expandEvent);
+}
+function sortedUpcomingEvents() {
+  return [...(data.events || [])]
+    .filter(event => {
+      if (event.type === 'kids-omar') return event.endDate >= isoDate(today);
+      return event.date >= isoDate(today);
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+function eventsForDate(dateKey) {
+  return allExpandedEvents().filter(event => (event.occurrenceDate || event.date) === dateKey);
+}
+function openDayModal(dateKey) {
+  activeDayModalDate = dateKey;
+  renderDayModal();
+  document.getElementById('day-modal').style.display = 'flex';
+}
+function renderDayModal() {
+  if (!activeDayModalDate) return;
+  document.getElementById('day-modal-title').textContent = formatDay(activeDayModalDate);
+  const slotHtml = SLOTS.map(slot => {
+    const summary = getSlotSummary(activeDayModalDate, slot);
+    const label = summary.allFree ? 'all free' : summary.currentUserFree ? 'you free' : summary.someFree ? `${summary.freeUsers.length} free` : 'none';
+    return `<button class="modal-btn" onclick="toggleSlot('${activeDayModalDate}','${slot}')">${SLOT_LABELS[slot]} , ${label}</button>`;
+  }).join('');
+  document.getElementById('day-modal-slot-grid').innerHTML = slotHtml;
+  const events = eventsForDate(activeDayModalDate);
+  const confirmedBox = sharedSlots(activeDayModalDate).length
+    ? `<label class="confirmed-toggle"><input type="checkbox" ${data.confirmations[activeDayModalDate] ? 'checked' : ''} onchange="toggleConfirmedDay('${activeDayModalDate}')"> CONFIRMED?</label>`
+    : '';
+  document.getElementById('day-modal-events').innerHTML = confirmedBox + (events.length
+    ? events.map(e => e.type === 'kids-omar'
+        ? `<button class="day-modal-event" onclick="openEventModalFromDay('${e.id}')">Omar kids · ${escapeHtml(e.spanLabel || 'weekend')} · every 2 weeks</button>`
+        : `<button class="day-modal-event" onclick="openEventModalFromDay('${e.id}')">${escapeHtml(e.title)}</button>`
+      ).join('')
+    : '<div class="event-meta">No events on this day</div>');
+}
+function openEventModalFromDay(eventId) {
+  closeDayModal();
+  openEventModal(eventId);
+}
+function closeDayModal() {
+  document.getElementById('day-modal').style.display = 'none';
+  activeDayModalDate = null;
+}
+function openEventModal(eventId = null) {
+  editingEventId = eventId;
+  const modal = document.getElementById('event-modal');
+  const title = document.getElementById('event-title');
+  const date = document.getElementById('event-date');
+  const endDate = document.getElementById('event-end-date');
+  const type = document.getElementById('event-type');
+  const heading = document.getElementById('event-modal-title');
+  const deleteBtn = document.getElementById('delete-event-btn');
+  const attendeeList = document.getElementById('attendee-list');
+  attendeeList.innerHTML = USERS.map(user => `<button type="button" class="attendee-pill" data-user="${user}" onclick="toggleAttendee('${user}')">${USER_DISPLAY[user]}</button>`).join('');
+  if (eventId) {
+    const event = data.events.find(e => e.id === eventId);
+    if (!event) return;
+    heading.textContent = 'Edit special event';
+    title.value = event.title || '';
+    date.value = event.date || '';
+    endDate.value = event.endDate || '';
+    type.value = event.type || 'important';
+    setAttendeeSelection(event.attendees || USERS);
+    deleteBtn.style.display = 'inline-block';
+  } else {
+    heading.textContent = 'Add special event';
+    title.value = '';
+    date.value = isoDate(today);
+    endDate.value = '';
+    type.value = 'important';
+    setAttendeeSelection([...USERS]);
+    deleteBtn.style.display = 'none';
+  }
+  handleEventTypeChange();
+  modal.style.display = 'flex';
+}
+function closeEventModal() {
+  document.getElementById('event-modal').style.display = 'none';
+  editingEventId = null;
+}
+function setAttendeeSelection(selectedUsers) {
+  document.querySelectorAll('.attendee-pill').forEach(el => el.classList.toggle('active', selectedUsers.includes(el.dataset.user)));
+}
+function toggleAttendee(user) {
+  const el = document.querySelector(`.attendee-pill[data-user="${user}"]`);
+  if (!el) return;
+  el.classList.toggle('active');
+}
+function getSelectedAttendees() {
+  return Array.from(document.querySelectorAll('.attendee-pill.active')).map(el => el.dataset.user);
+}
+function handleEventTypeChange() {
+  const type = document.getElementById('event-type').value;
+  const titleField = document.getElementById('event-title-field');
+  const endDateField = document.getElementById('event-end-date-field');
+  const kidsHelpField = document.getElementById('kids-help-field');
+  const attendeeList = document.getElementById('attendee-list');
+  if (type === 'kids-omar') {
+    titleField.classList.add('hidden-field');
+    endDateField.classList.remove('hidden-field');
+    kidsHelpField.classList.remove('hidden-field');
+    setAttendeeSelection(['omar']);
+    attendeeList.style.opacity = '0.7';
+  } else {
+    titleField.classList.remove('hidden-field');
+    endDateField.classList.remove('hidden-field');
+    kidsHelpField.classList.add('hidden-field');
+    attendeeList.style.opacity = '1';
+  }
+}
+function saveEventModal() {
+  const title = document.getElementById('event-title').value.trim();
+  const date = document.getElementById('event-date').value;
+  const endDate = document.getElementById('event-end-date').value;
+  const type = document.getElementById('event-type').value;
+  const attendees = type === 'kids-omar' ? ['omar'] : getSelectedAttendees();
+  if (!date || !attendees.length) return;
+  const payload = type === 'kids-omar'
+    ? { title: 'Omar kids', date, endDate, type, attendees, repeatEveryDays: 14, durationDays: 2 }
+    : { title, date, endDate: endDate || '', type, attendees };
+  if ((type !== 'kids-omar' && !title) || (type === 'kids-omar' && !endDate)) return;
+  if (editingEventId) {
+    const idx = data.events.findIndex(e => e.id === editingEventId);
+    if (idx >= 0) data.events[idx] = { ...data.events[idx], ...payload };
+  } else {
+    data.events.push({ id: makeId(), ...payload });
+  }
+  scheduleSave();
+  closeEventModal();
+  renderAll();
+}
+function deleteCurrentEvent() {
+  if (!editingEventId) return;
+  data.events = data.events.filter(e => e.id !== editingEventId);
+  scheduleSave();
+  closeEventModal();
+  renderAll();
+}
+function toggleCaldecoteWeekends() {
+  data.settings.caldecoteWeekendsOn = !data.settings.caldecoteWeekendsOn;
+  data.events = data.events.filter(event => !(event.type === 'caldecote' && event.generated));
+  scheduleSave();
+  renderAll();
+}
+function jumpToDate(iso) {
+  const d = new Date(`${iso}T12:00:00`);
+  viewDate = new Date(d.getFullYear(), d.getMonth(), 1);
+  renderAll();
+}
+function renderSyncBar() {
+  const parts = USERS.map(user => `${USER_DISPLAY[user].split(' ')[0]}: ${fmtLastUpdated(data.lastUpdated[user])}`);
+  const tail = pendingSave ? ' | saving…' : '';
+  document.getElementById('sync-bar').textContent = parts.join(' | ') + tail;
+}
+
+// ============================================================
+// Data layer — Supabase (single JSON document in calendar_state).
+// Only these two functions changed from the original app; every
+// other function above is byte-for-byte unchanged.
+// ============================================================
+async function loadData() {
+  try {
+    const { data: row, error } = await db
+      .from('calendar_state')
+      .select('data')
+      .eq('id', 1)
+      .single();
+    if (error) throw error;
+    data = migrateData(row && row.data);
+    loadedOk = true;
+  } catch (e) {
+    // Leave whatever `data` we already have; never flip loadedOk on failure.
+  }
+}
+async function refreshData() {
+  if (pendingSave) return;
+  await loadData();
+  ensureDefaults();
+  renderAll();
+}
+function migrateData(raw) {
+  const fallback = { omar: {}, nini: {}, farooq: {}, notes: { omar: {}, nini: {}, farooq: {} }, lastUpdated: {}, events: [], dayTags: {}, confirmations: {}, settings: { caldecoteWeekendsOn: false } };
+  const safe = raw && typeof raw === 'object' ? raw : fallback;
+  safe.omar = safe.omar && typeof safe.omar === 'object' ? safe.omar : {};
+  safe.nini = safe.nini && typeof safe.nini === 'object' ? safe.nini : {};
+  safe.farooq = safe.farooq && typeof safe.farooq === 'object' ? safe.farooq : {};
+  safe.notes = safe.notes && typeof safe.notes === 'object' ? safe.notes : { omar: {}, nini: {}, farooq: {} };
+  safe.notes.omar = safe.notes.omar && typeof safe.notes.omar === 'object' ? safe.notes.omar : {};
+  safe.notes.nini = safe.notes.nini && typeof safe.notes.nini === 'object' ? safe.notes.nini : {};
+  safe.notes.farooq = safe.notes.farooq && typeof safe.notes.farooq === 'object' ? safe.notes.farooq : {};
+  safe.lastUpdated = safe.lastUpdated && typeof safe.lastUpdated === 'object' ? safe.lastUpdated : {};
+  safe.events = Array.isArray(safe.events) ? safe.events : [];
+  safe.dayTags = safe.dayTags && typeof safe.dayTags === 'object' ? safe.dayTags : {};
+  safe.confirmations = safe.confirmations && typeof safe.confirmations === 'object' ? safe.confirmations : {};
+  safe.settings = safe.settings && typeof safe.settings === 'object' ? safe.settings : { caldecoteWeekendsOn: false };
+  return safe;
+}
+function scheduleSave() {
+  pendingSave = true;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 500);
+}
+async function doSave() {
+  // Guard: don't overwrite the shared document if we never loaded it
+  // (replaces the "reject suspicious empty overwrite" check the old
+  // Netlify proxy did server-side).
+  if (!loadedOk) { pendingSave = false; renderSyncBar(); return; }
+  try {
+    const { error } = await db
+      .from('calendar_state')
+      .upsert({ id: 1, data, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    if (error) throw error;
+  } catch (e) {
+    // swallow — sync bar will show "saving…" cleared below
+  } finally {
+    pendingSave = false;
+    renderSyncBar();
+  }
+}
+function fmtLastUpdated(iso) {
+  if (!iso) return 'never';
+  const d = new Date(iso);
+  return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function isoDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function addDays(date, count) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + count);
+  return d;
+}
+function formatDay(iso) {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function makeId() {
+  return `evt_${Math.random().toString(36).slice(2, 10)}`;
+}
+async function loadBankHolidays() {
+  try {
+    const res = await fetch(BH_URL);
+    if (!res.ok) return;
+    const json = await res.json();
+    const events = json['england-and-wales']?.events || [];
+    events.forEach(e => { bankHolidays[e.date] = e.title; });
+  } catch {}
+}
+async function loadWeather() {
+  try {
+    const res = await fetch(WEATHER_URL);
+    if (!res.ok) return;
+    const json = await res.json();
+    const dates = json.daily.time || [];
+    dates.forEach((d, i) => {
+      weatherData[d] = { code: json.daily.weathercode[i], max: Math.round(json.daily.temperature_2m_max[i]), min: Math.round(json.daily.temperature_2m_min[i]) };
+    });
+  } catch {}
+}
+function toICSDate(dateStr) {
+  return String(dateStr || '').replaceAll('-', '');
+}
+function escapeICS(str) {
+  return String(str || '')
+    .replaceAll('\\', '\\\\')
+    .replaceAll(';', '\\;')
+    .replaceAll(',', '\\,')
+    .replaceAll('\n', '\\n');
+}
+function buildICSEvents() {
+  const sourceEvents = [...(data.events || [])];
+  return sourceEvents.map(event => {
+    if (event.type === 'kids-omar') {
+      return [
+        'BEGIN:VEVENT',
+        `UID:${event.id}@rehmans-family-calendar`,
+        `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
+        `SUMMARY:${escapeICS('Omar kids')}`,
+        `DESCRIPTION:${escapeICS('Recurring Omar kids weekend, every 2 weeks, Friday evening to Sunday evening.')}`,
+        `DTSTART;VALUE=DATE:${toICSDate(event.date)}`,
+        `DTEND;VALUE=DATE:${toICSDate(addDays(new Date(`${event.date}T12:00:00`), 3).toISOString().slice(0, 10))}`,
+        `RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=${toICSDate(event.endDate)}T235959Z`,
+        'END:VEVENT'
+      ].join('\r\n');
+    }
+    const endDate = event.endDate && event.endDate > event.date ? event.endDate : event.date;
+    const exclusiveEnd = addDays(new Date(`${endDate}T12:00:00`), 1).toISOString().slice(0, 10);
+    return [
+      'BEGIN:VEVENT',
+      `UID:${event.id}@rehmans-family-calendar`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
+      `SUMMARY:${escapeICS(event.title)}`,
+      `DESCRIPTION:${escapeICS(event.type === 'caldecote' ? 'Caldecote weekend' : 'Special event')}`,
+      `DTSTART;VALUE=DATE:${toICSDate(event.date)}`,
+      `DTEND;VALUE=DATE:${toICSDate(exclusiveEnd)}`,
+      'END:VEVENT'
+    ].join('\r\n');
+  });
+}
+function exportICS() {
+  const body = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Rehmans Family Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    ...buildICSEvents(),
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([body], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rehmans-family-calendar.ics';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function escapeHtml(str) {
+  return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
+init();
+</script>
+</body>
+</html>
