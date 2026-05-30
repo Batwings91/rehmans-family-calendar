@@ -44,13 +44,13 @@
       background: var(--bg);
       color: var(--ink);
       min-height: 100vh;
-      padding-bottom: 72px;
+      padding-bottom: 18px;
       -webkit-font-smoothing: antialiased;
     }
-    body.compact-mode .summary-card,
     body.compact-mode .event-list-card {
       display: none;
     }
+    body.compact-mode .summary-card { margin: 10px 12px 0; padding: 11px 12px; }
     header {
       background: var(--surface);
       text-align: center;
@@ -147,10 +147,15 @@
     }
     .toolbar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       padding: 10px 12px 0;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
+    .toolbar::-webkit-scrollbar { display: none; }
+    .toolbar .toolbar-btn { flex: 0 0 auto; padding: 7px 11px; font-size: 0.64rem; }
     .toolbar-btn:hover { background: var(--acid); }
     .summary-card, .event-list-card {
       margin: 12px 12px 0;
@@ -184,6 +189,13 @@
     }
     .event-item:first-child { border-top: none; }
     .event-meta { color: var(--muted); font-size: 0.74rem; font-weight: 600; }
+    .hl { display: flex; align-items: flex-start; gap: 8px; font-size: 0.82rem; line-height: 1.35; margin-top: 7px; }
+    .hl:first-of-type { margin-top: 0; }
+    .hl-dot { flex: 0 0 auto; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--line); margin-top: 3px; }
+    .hl-dot.good { background: var(--good); }
+    .hl-dot.berry { background: var(--berry); }
+    .hl-dot.muted { background: #d9cdd4; }
+    .hl-meta { color: var(--muted); font-weight: 600; }
     .cal-wrap {
       margin: 12px;
       background: var(--surface);
@@ -218,7 +230,9 @@
     }
     .day:nth-child(7n) { border-right: none; }
     .day.empty { background: #efe7d7; }
-    .day.today-cell { box-shadow: inset 0 0 0 3px var(--berry); }
+    .day.today-cell { box-shadow: inset 0 0 0 3px var(--berry); background: color-mix(in srgb, var(--berry) 9%, var(--surface)); }
+    .day.today-cell .day-num { background: var(--berry); color: #fff; border-radius: 9999px; padding: 1px 8px; }
+    .day.past { opacity: 0.45; }
     .day.has-all { background: color-mix(in srgb, var(--acid) 40%, white); }
     .day.caldecote { background: color-mix(in srgb, var(--caldecote) 14%, white); }
     .day-top {
@@ -301,8 +315,8 @@
     .slot-btn.partial { background: color-mix(in srgb, var(--nini) 14%, white); color: var(--nini); border-color: color-mix(in srgb, var(--nini) 50%, white); }
     .slot-btn.busy { opacity: 0.5; }
     body.compact-mode .day {
-      min-height: 64px;
-      padding: 5px 4px;
+      min-height: 52px;
+      padding: 4px 3px;
     }
     body.compact-mode .day-top {
       margin-bottom: 4px;
@@ -317,21 +331,42 @@
       padding: 1px 5px;
     }
     body.compact-mode .slots {
+      display: flex;
       gap: 3px;
+      justify-content: space-between;
     }
     body.compact-mode .slot-btn {
-      font-size: 0.56rem;
-      padding: 3px 0;
+      flex: 1;
+      border: none;
+      background: none;
+      box-shadow: none;
+      padding: 2px 0;
       border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--ink-soft);
     }
-    body.compact-mode .slot-owners {
-      font-size: 0.42rem;
-      margin-top: 1px;
+    .slot-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1.2px solid var(--line);
+      background: #d9cdd4;
+      display: block;
     }
-    body.compact-mode .slot-btn.all-free { font-weight: 900; box-shadow: none; }
-    body.compact-mode .slot-btn::after {
-      display: none;
+    .slot-tag {
+      font-size: 0.5rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1;
     }
+    body.compact-mode .slot-btn.all-free .slot-dot { background: var(--good); }
+    body.compact-mode .slot-btn.mine .slot-dot { background: var(--user-color, var(--omar)); }
+    body.compact-mode .slot-btn.partial .slot-dot { background: var(--rusty); }
+    body.compact-mode .slot-btn.busy { opacity: 0.55; }
+    body.compact-mode .slot-btn.busy .slot-dot { background: #d9cdd4; }
     #user-overlay, #event-modal, #day-modal {
       position: fixed;
       inset: 0;
@@ -459,10 +494,10 @@
   </div>
 </div>
 <div class="toolbar">
-  <button class="toolbar-btn" onclick="openEventModal()">+ Add special event</button>
-  <button class="toolbar-btn" onclick="toggleCaldecoteWeekends()" id="caldecote-toggle-btn">Caldecote weekends: off</button>
-  <button class="toolbar-btn" onclick="toggleCompactMode()" id="compact-toggle-btn">Compact mode: off</button>
-  <button class="toolbar-btn" onclick="exportICS()">Export calendar (.ics)</button>
+  <button class="toolbar-btn" onclick="openEventModal()">+ Event</button>
+  <button class="toolbar-btn" onclick="toggleCaldecoteWeekends()" id="caldecote-toggle-btn">Caldecote: off</button>
+  <button class="toolbar-btn" onclick="toggleCompactMode()" id="compact-toggle-btn">Compact: off</button>
+  <button class="toolbar-btn" onclick="exportICS()">Export</button>
 </div>
 <div class="summary-card" id="summary-card"></div>
 <div class="event-list-card" id="event-list-card"></div>
@@ -537,7 +572,7 @@ let loadedOk = false;
 const STORAGE_KEY = 'rehmans_calendar_user';
 const COMPACT_KEY = 'rehmans_calendar_compact_mode';
 const SLOTS = ['morning', 'afternoon', 'evening'];
-const SLOT_LABELS = { morning: 'AM', afternoon: 'PM', evening: 'Eve' };
+const SLOT_LABELS = { morning: 'AM', afternoon: 'PM', evening: 'EVE' };
 const USERS = ['omar', 'nini', 'farooq'];
 const USER_DISPLAY = { omar: 'Omar 🟠', nini: 'Nini 🟣', farooq: 'Farooq / Steph 🔵' };
 const USER_COLORS = { omar: '#e93ca3', nini: '#8e3cc9', farooq: '#2f7fb0' };
@@ -633,19 +668,39 @@ function renderMonthLabel() {
   document.getElementById('next-btn').disabled = viewDate >= MAX_MONTH;
 }
 function renderToolbar() {
-  document.getElementById('caldecote-toggle-btn').textContent = `Caldecote weekends: ${data.settings.caldecoteWeekendsOn ? 'on' : 'off'}`;
-  document.getElementById('compact-toggle-btn').textContent = `Compact mode: ${compactMode ? 'on' : 'off'}`;
+  document.getElementById('caldecote-toggle-btn').textContent = `Caldecote: ${data.settings.caldecoteWeekendsOn ? 'on' : 'off'}`;
+  document.getElementById('compact-toggle-btn').textContent = `Compact: ${compactMode ? 'on' : 'off'}`;
 }
 function renderSummary() {
-  const sharedDays = getUpcomingFullySharedDays().slice(0, 3);
-  const lines = sharedDays.length
-    ? sharedDays.map(day => {
-        const weather = weatherData[day.date];
-        const weatherText = weather ? `, ${weather.min} to ${weather.max}°C` : '';
-        return `<div>✅ ${formatDay(day.date)} has all three free: ${day.slots.join(', ')}${weatherText}</div>`;
-      }).join('')
-    : '<div>No fully-shared days yet, start marking availability.</div>';
-  document.getElementById('summary-card').innerHTML = `<h3>Best family matches</h3><div class="summary-list">${lines}</div>`;
+  const sharedDays = getUpcomingFullySharedDays();
+  const next = sharedDays[0];
+  const weekends = getUpcomingFreeWeekends(3);
+  const slotNames = slots => slots.map(s => SLOT_LABELS[s]).join(', ');
+
+  const nextLine = next
+    ? `<div class="hl"><span class="hl-dot good"></span><span><strong>Next time all three are free:</strong> ${formatDay(next.date)} <span class="hl-meta">(${slotNames(next.slots)})</span></span></div>`
+    : `<div class="hl"><span class="hl-dot muted"></span><span>No day yet where all three are free — once everyone marks availability it'll show here.</span></div>`;
+
+  const wkLine = weekends.length
+    ? `<div class="hl"><span class="hl-dot berry"></span><span><strong>Next free weekend together:</strong> ${formatDay(weekends[0].sat)} – ${formatDay(weekends[0].sun)}</span></div>`
+    : `<div class="hl"><span class="hl-dot muted"></span><span>No fully-free weekend found yet.</span></div>`;
+
+  let detail = '';
+  if (!compactMode) {
+    const top = sharedDays.slice(0, 3);
+    const list = top.length
+      ? top.map(day => {
+          const weather = weatherData[day.date];
+          const weatherText = weather ? ` · ${weather.min}–${weather.max}°C` : '';
+          return `<div>✅ ${formatDay(day.date)}: ${slotNames(day.slots)}${weatherText}</div>`;
+        }).join('')
+      : '<div>Start marking availability to see matches.</div>';
+    const moreWk = weekends.length > 1
+      ? `<div style="margin-top:6px"><strong>More free weekends:</strong> ${weekends.slice(1, 3).map(w => `${formatDay(w.sat)}–${formatDay(w.sun)}`).join('  ·  ')}</div>`
+      : '';
+    detail = `<div class="summary-list" style="margin-top:10px">${list}${moreWk}</div>`;
+  }
+  document.getElementById('summary-card').innerHTML = `<h3>When can we get together?</h3>${nextLine}${wkLine}${detail}`;
 }
 function renderEventList() {
   const events = sortedUpcomingEvents().filter(event => !(event.type === 'caldecote' && event.generated)).slice(0, 5);
@@ -693,6 +748,7 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = 'day';
     if (cellDate.getTime() === today.getTime()) cell.classList.add('today-cell');
+    if (cellDate < today) cell.classList.add('past');
     const shared = sharedSlots(key);
     const events = eventsForDate(key);
     const isCaldecote = events.some(e => e.type === 'caldecote');
@@ -719,19 +775,9 @@ function renderCalendar() {
       btn.className = 'slot-btn';
       const state = getSlotSummary(key, slot);
       if (compactMode) {
-        if (state.allFree) {
-          btn.classList.add('all-free');
-          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || 'all'}</span>`;
-        } else if (state.currentUserFree) {
-          btn.classList.add('mine');
-          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || ''}</span>`;
-        } else if (state.someFree) {
-          btn.classList.add('partial');
-          btn.innerHTML = `${SLOT_LABELS[slot]}<span class="slot-owners">${state.ownerLabel || ''}</span>`;
-        } else {
-          btn.classList.add('busy');
-          btn.innerHTML = `·<span class="slot-owners">&nbsp;</span>`;
-        }
+        const cls = state.allFree ? 'all-free' : state.currentUserFree ? 'mine' : state.someFree ? 'partial' : 'busy';
+        btn.classList.add(cls);
+        btn.innerHTML = `<span class="slot-dot"></span><span class="slot-tag">${SLOT_LABELS[slot]}</span>`;
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           openDayModal(key);
@@ -810,6 +856,23 @@ function getUpcomingFullySharedDays() {
     const key = isoDate(d);
     const slots = sharedSlots(key);
     if (slots.length) out.push({ date: key, slots });
+  }
+  return out;
+}
+function getUpcomingFreeWeekends(limit) {
+  // A "free weekend" = a Saturday and its Sunday that BOTH have at least
+  // one slot where all three are free. Looks ahead ~26 weeks.
+  const out = [];
+  for (let i = 0; i < 182 && out.length < (limit || 3); i++) {
+    const d = addDays(today, i);
+    if (d.getDay() !== 6) continue; // Saturdays only
+    const satKey = isoDate(d);
+    const sunKey = isoDate(addDays(d, 1));
+    const satSlots = sharedSlots(satKey);
+    const sunSlots = sharedSlots(sunKey);
+    if (satSlots.length && sunSlots.length) {
+      out.push({ sat: satKey, sun: sunKey, satSlots, sunSlots });
+    }
   }
   return out;
 }
