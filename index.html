@@ -331,42 +331,54 @@
       padding: 1px 5px;
     }
     body.compact-mode .slots {
-      display: flex;
-      gap: 3px;
-      justify-content: space-between;
+      display: grid;
+      gap: 2px;
     }
     body.compact-mode .slot-btn {
-      flex: 1;
       border: none;
       background: none;
       box-shadow: none;
-      padding: 2px 0;
-      border-radius: 6px;
+      padding: 1px 3px;
+      border-radius: 5px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 2px;
+      justify-content: space-between;
+      gap: 3px;
       color: var(--ink-soft);
     }
-    .slot-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      border: 1.2px solid var(--line);
-      background: #d9cdd4;
-      display: block;
-    }
+    body.compact-mode .slot-btn.all-free { background: color-mix(in srgb, var(--acid) 45%, white); }
     .slot-tag {
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.02em;
       line-height: 1;
     }
-    body.compact-mode .slot-btn.all-free .slot-dot { background: var(--good); }
-    body.compact-mode .slot-btn.mine .slot-dot { background: var(--user-color, var(--omar)); }
-    body.compact-mode .slot-btn.partial .slot-dot { background: var(--rusty); }
-    body.compact-mode .slot-btn.busy { opacity: 0.55; }
-    body.compact-mode .slot-btn.busy .slot-dot { background: #d9cdd4; }
+    .pdots { display: flex; gap: 2px; }
+    .pdot {
+      width: 7px; height: 7px; border-radius: 50%;
+      border: 1.1px solid var(--line);
+      background: transparent;
+      opacity: 0.3;
+    }
+    .pdot.free { opacity: 1; }
+    .pdot.omar.free { background: var(--omar); }
+    .pdot.nini.free { background: var(--nini); }
+    .pdot.farooq.free { background: var(--farooq); }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+      padding: 12px 14px 0;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 5px; }
+    .legend .pdot { width: 9px; height: 9px; opacity: 1; }
+    .legend-note { color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 600; }
     #user-overlay, #event-modal, #day-modal {
       position: fixed;
       inset: 0;
@@ -501,6 +513,12 @@
 </div>
 <div class="summary-card" id="summary-card"></div>
 <div class="event-list-card" id="event-list-card"></div>
+<div class="legend">
+  <span class="legend-item"><span class="pdot omar free"></span>Omar</span>
+  <span class="legend-item"><span class="pdot nini free"></span>Nini</span>
+  <span class="legend-item"><span class="pdot farooq free"></span>Farooq / Steph</span>
+  <span class="legend-note">filled = free, faded = not</span>
+</div>
 <div class="cal-wrap">
   <div class="dow-header">
     <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
@@ -775,9 +793,9 @@ function renderCalendar() {
       btn.className = 'slot-btn';
       const state = getSlotSummary(key, slot);
       if (compactMode) {
-        const cls = state.allFree ? 'all-free' : state.currentUserFree ? 'mine' : state.someFree ? 'partial' : 'busy';
-        btn.classList.add(cls);
-        btn.innerHTML = `<span class="slot-dot"></span><span class="slot-tag">${SLOT_LABELS[slot]}</span>`;
+        if (state.allFree) btn.classList.add('all-free');
+        const dots = USERS.map(u => `<span class="pdot ${u}${getSlotState(u, key, slot) === 'free' ? ' free' : ''}"></span>`).join('');
+        btn.innerHTML = `<span class="slot-tag">${SLOT_LABELS[slot]}</span><span class="pdots">${dots}</span>`;
         btn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           openDayModal(key);
