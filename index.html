@@ -196,6 +196,11 @@
     .hl-dot.berry { background: var(--berry); }
     .hl-dot.muted { background: #d9cdd4; }
     .hl-meta { color: var(--muted); font-weight: 600; }
+    .att-row { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; }
+    .att { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; color: var(--ink); }
+    .att .pdot, .attendee-pill .pdot { width: 9px; height: 9px; opacity: 1; }
+    .attendee-pill { display: inline-flex; align-items: center; gap: 6px; }
+    .attendee-pill.active .pdot { box-shadow: 0 0 0 1.5px #fff; }
     .cal-wrap {
       margin: 12px;
       background: var(--surface);
@@ -593,6 +598,8 @@ const SLOTS = ['morning', 'afternoon', 'evening'];
 const SLOT_LABELS = { morning: 'AM', afternoon: 'PM', evening: 'EVE' };
 const USERS = ['omar', 'nini', 'farooq'];
 const USER_DISPLAY = { omar: 'Omar 🟠', nini: 'Nini 🟣', farooq: 'Farooq / Steph 🔵' };
+const USER_SHORT = { omar: 'Omar', nini: 'Nini', farooq: 'Farooq / Steph' };
+const attendeeChip = a => `<span class="att"><span class="pdot ${a} free"></span>${USER_SHORT[a]}</span>`;
 const USER_COLORS = { omar: '#e93ca3', nini: '#8e3cc9', farooq: '#2f7fb0' };
 const BH_URL = 'https://www.gov.uk/bank-holidays.json';
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=52.2053&longitude=0.1218&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FLondon&forecast_days=14';
@@ -735,7 +742,8 @@ function renderEventList() {
       <div class="event-item">
         <div>
           <div><strong>${escapeHtml(event.title)}</strong></div>
-          <div class="event-meta">${formatDay(displayDate)} · ${meta} · ${(event.attendees || []).map(a => USER_DISPLAY[a]).join(', ')}</div>
+          <div class="event-meta">${formatDay(displayDate)} · ${meta}</div>
+          <div class="att-row">${(event.attendees || []).map(attendeeChip).join('')}</div>
         </div>
         <div style="display:flex; gap:6px;">
           <button class="event-btn" onclick="jumpToDate('${displayDate}')">View</button>
@@ -992,7 +1000,7 @@ function openEventModal(eventId = null) {
   const heading = document.getElementById('event-modal-title');
   const deleteBtn = document.getElementById('delete-event-btn');
   const attendeeList = document.getElementById('attendee-list');
-  attendeeList.innerHTML = USERS.map(user => `<button type="button" class="attendee-pill" data-user="${user}" onclick="toggleAttendee('${user}')">${USER_DISPLAY[user]}</button>`).join('');
+  attendeeList.innerHTML = USERS.map(user => `<button type="button" class="attendee-pill" data-user="${user}" onclick="toggleAttendee('${user}')"><span class="pdot ${user} free"></span>${USER_SHORT[user]}</button>`).join('');
   if (eventId) {
     const event = data.events.find(e => e.id === eventId);
     if (!event) return;
