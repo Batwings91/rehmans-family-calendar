@@ -5,32 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Rehmans Family Calendar 🗓️</title>
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#FF6B35">
+  <meta name="theme-color" content="#e93ca3">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Rehmans">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --omar: #FF6B35;
-      --nini: #9B59B6;
-      --farooq: #3498DB;
-      --all: #27AE60;
-      --caldecote: #2f80ed;
-      --bg: #FDF6EE;
-      --surface: #FFFFFF;
-      --text: #2C2C2C;
-      --muted: #7f7f7f;
+      --bg: #f6f1e7;
+      --surface: #fffaf0;
+      --ink: #1a0a14;
+      --ink-soft: #4a2a3a;
+      --line: #2a1018;
+      --berry: #e93ca3;
+      --berry-deep: #b8217a;
+      --acid: #d1db58;
+      --good: #1f8f4a;
+      --rusty: #d97a1f;
+      --learn: #c12c2c;
+      --text: #1a0a14;
+      --muted: #7a5a68;
+      --all: #1f8f4a;
+      --caldecote: #2f7fb0;
+      --omar: #e93ca3;
+      --nini: #8e3cc9;
+      --farooq: #2f7fb0;
+      --user-color: var(--omar);
+      --radius: 14px;
+      --shadow: 4px 4px 0 var(--line);
+      --shadow-sm: 2px 2px 0 var(--line);
     }
     body {
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Inter Tight', system-ui, sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       min-height: 100vh;
       padding-bottom: 72px;
+      -webkit-font-smoothing: antialiased;
     }
     body.compact-mode .summary-card,
     body.compact-mode .event-list-card {
@@ -39,35 +54,43 @@
     header {
       background: var(--surface);
       text-align: center;
-      padding: 16px 16px 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 16px 16px 14px;
+      border-bottom: 2px solid var(--line);
+      box-shadow: 0 3px 0 var(--line);
       position: sticky;
       top: 0;
       z-index: 20;
     }
     header h1 {
-      font-size: 1.08rem;
-      font-weight: 800;
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
     .you-are {
-      font-size: 0.78rem;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
       color: var(--muted);
-      margin-top: 4px;
+      margin-top: 6px;
     }
     .you-are button {
       background: none;
       border: none;
-      color: var(--muted);
+      color: var(--berry-deep);
       text-decoration: underline;
       cursor: pointer;
       font: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       padding: 0;
     }
-    .top-strip { padding: 10px 12px 4px; }
+    .top-strip { padding: 12px 12px 4px; }
     .month-nav {
       display: flex;
       align-items: center;
@@ -82,101 +105,122 @@
       min-width: 0;
     }
     .month-nav h2 {
-      font-size: 1rem;
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.15rem;
       font-weight: 800;
-      min-width: 110px;
+      min-width: 120px;
       text-align: center;
     }
     .nav-btn, .today-btn, .toolbar-btn, .modal-btn, .event-btn {
       background: var(--surface);
-      border: 1.5px solid #e0d6cc;
-      border-radius: 20px;
-      padding: 6px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 9999px;
+      padding: 7px 14px;
       font: inherit;
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      color: var(--text);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.12s ease;
     }
+    .nav-btn:hover, .today-btn:hover, .toolbar-btn:hover, .modal-btn:hover, .event-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--line);
+    }
+    .nav-btn:active, .today-btn:active, .toolbar-btn:active, .modal-btn:active, .event-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+    .nav-btn:disabled { opacity: 0.4; box-shadow: none; cursor: default; transform: none; }
     .nav-btn {
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 1.05rem;
     }
     .toolbar {
       display: flex;
       gap: 8px;
-      padding: 8px 12px 0;
+      padding: 10px 12px 0;
       flex-wrap: wrap;
     }
+    .toolbar-btn:hover { background: var(--acid); }
     .summary-card, .event-list-card {
-      margin: 10px 12px 0;
+      margin: 12px 12px 0;
       background: var(--surface);
-      border-radius: 12px;
-      padding: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      border: 1.5px solid var(--line);
+      border-left-width: 6px;
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
     }
-    .summary-card { border-left: 4px solid var(--all); }
-    .event-list-card { border-left: 4px solid var(--caldecote); }
+    .summary-card { border-left-color: var(--good); }
+    .event-list-card { border-left-color: var(--berry); }
     .summary-card h3, .event-list-card h3 {
-      font-size: 0.86rem;
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 0.98rem;
       font-weight: 800;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .summary-list, .event-list {
       display: grid;
       gap: 6px;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
     }
     .event-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 8px 0;
-      border-top: 1px solid #f1ece5;
+      padding: 9px 0;
+      border-top: 1.5px solid rgba(42, 16, 24, 0.12);
     }
     .event-item:first-child { border-top: none; }
-    .event-meta { color: var(--muted); font-size: 0.74rem; }
+    .event-meta { color: var(--muted); font-size: 0.74rem; font-weight: 600; }
     .cal-wrap {
       margin: 12px;
       background: var(--surface);
-      border-radius: 14px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow);
     }
     .dow-header, .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
     }
     .dow-header {
-      background: #faf6f1;
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 700;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 0.66rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       text-align: center;
-      padding: 10px 0;
+      padding: 11px 0;
     }
     .day {
       min-height: 124px;
-      border-top: 1px solid #f3ede6;
-      border-right: 1px solid #f3ede6;
+      border-top: 1.5px solid rgba(42, 16, 24, 0.14);
+      border-right: 1.5px solid rgba(42, 16, 24, 0.14);
       padding: 8px 6px;
       position: relative;
-      background: white;
+      background: var(--surface);
       min-width: 0;
       overflow: hidden;
     }
     .day:nth-child(7n) { border-right: none; }
-    .day.empty { background: #fcfaf7; }
-    .day.today-cell { box-shadow: inset 0 0 0 2px #ffd3bf; }
-    .day.has-all { background: #f4fbf5; }
-    .day.caldecote { background: #eef6ff; }
+    .day.empty { background: #efe7d7; }
+    .day.today-cell { box-shadow: inset 0 0 0 3px var(--berry); }
+    .day.has-all { background: color-mix(in srgb, var(--acid) 40%, white); }
+    .day.caldecote { background: color-mix(in srgb, var(--caldecote) 14%, white); }
     .day-top {
       display: flex;
       align-items: center;
@@ -185,7 +229,7 @@
       margin-bottom: 8px;
       min-width: 0;
     }
-    .day-num { font-size: 0.86rem; font-weight: 800; }
+    .day-num { font-family: 'Fraunces', Georgia, serif; font-size: 0.95rem; font-weight: 800; }
     .day-badges {
       display: flex;
       flex-wrap: nowrap;
@@ -197,14 +241,16 @@
       flex: 1;
     }
     .tag-chip {
-      border: none;
-      border-radius: 999px;
-      padding: 2px 6px;
-      font-size: 0.62rem;
+      border: 1.2px solid var(--line);
+      border-radius: 9999px;
+      padding: 2px 7px;
+      font-size: 0.58rem;
       font-weight: 800;
-      background: #edf2ff;
-      color: #476286;
-      max-width: 72px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--acid);
+      color: var(--ink);
+      max-width: 78px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -213,41 +259,47 @@
       flex: 0 1 auto;
       min-width: 0;
     }
-    .tag-chip.caldecote-chip { background: #d9ebff; color: #1d5faa; }
-    .tag-chip.kids-chip { background: #ffe7cc; color: #a85a00; }
+    .tag-chip.caldecote-chip { background: var(--caldecote); color: #fff; }
+    .tag-chip.kids-chip { background: var(--rusty); color: #fff; }
     .confirmed-toggle {
       margin-top: 6px;
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 800;
-      color: #2f5d34;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--good);
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .confirmed-toggle input { accent-color: #27AE60; }
+    .confirmed-toggle input { accent-color: var(--good); }
     .slots { display: grid; gap: 6px; }
     .slot-btn {
-      border: 1px solid #eadfd2;
-      border-radius: 10px;
+      border: 1.2px solid var(--line);
+      border-radius: 9px;
       padding: 8px 0;
-      background: #fffaf5;
+      background: var(--surface);
       font: inherit;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
       cursor: pointer;
+      color: var(--ink);
     }
     .slot-owners {
       display: block;
-      font-size: 0.56rem;
+      font-size: 0.54rem;
       font-weight: 700;
+      letter-spacing: 0.02em;
       margin-top: 2px;
       line-height: 1.1;
       opacity: 0.9;
     }
-    .slot-btn.mine { background: color-mix(in srgb, var(--user-color, var(--omar)) 14%, white); color: var(--user-color, var(--omar)); border-color: var(--user-color, var(--omar)); }
-    .slot-btn.all-free { background: #e8f5e9; color: #1b5e20; border-color: var(--all); }
-    .slot-btn.partial { background: #f6f1ff; color: #6b4aa1; border-color: #c6b2e6; }
-    .slot-btn.busy { opacity: 0.8; }
+    .slot-btn.mine { background: color-mix(in srgb, var(--user-color, var(--omar)) 16%, white); color: var(--user-color, var(--omar)); border-color: var(--user-color, var(--omar)); }
+    .slot-btn.all-free { background: var(--acid); color: var(--ink); border-color: var(--line); box-shadow: var(--shadow-sm); }
+    .slot-btn.partial { background: color-mix(in srgb, var(--nini) 14%, white); color: var(--nini); border-color: color-mix(in srgb, var(--nini) 50%, white); }
+    .slot-btn.busy { opacity: 0.5; }
     body.compact-mode .day {
       min-height: 64px;
       padding: 5px 4px;
@@ -257,33 +309,33 @@
       align-items: flex-start;
     }
     body.compact-mode .day-num {
-      font-size: 0.76rem;
+      font-size: 0.78rem;
     }
     body.compact-mode .tag-chip {
       max-width: 40px;
-      font-size: 0.52rem;
-      padding: 1px 4px;
+      font-size: 0.5rem;
+      padding: 1px 5px;
     }
     body.compact-mode .slots {
       gap: 3px;
     }
     body.compact-mode .slot-btn {
-      font-size: 0.58rem;
+      font-size: 0.56rem;
       padding: 3px 0;
-      border-radius: 7px;
+      border-radius: 6px;
     }
     body.compact-mode .slot-owners {
       font-size: 0.42rem;
       margin-top: 1px;
     }
-    body.compact-mode .slot-btn.all-free { font-weight: 900; }
+    body.compact-mode .slot-btn.all-free { font-weight: 900; box-shadow: none; }
     body.compact-mode .slot-btn::after {
       display: none;
     }
     #user-overlay, #event-modal, #day-modal {
       position: fixed;
       inset: 0;
-      background: rgba(44, 44, 44, 0.55);
+      background: rgba(26, 10, 20, 0.55);
       display: none;
       align-items: center;
       justify-content: center;
@@ -291,49 +343,59 @@
       padding: 20px;
     }
     .panel, .modal-card {
-      background: white;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
       border-radius: 18px;
-      padding: 20px;
+      padding: 22px;
       width: min(460px, 100%);
       text-align: center;
+      box-shadow: var(--shadow);
     }
-    .user-btns { display: grid; gap: 10px; margin-top: 14px; }
+    .panel h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 900; }
+    .user-btns { display: grid; gap: 10px; margin-top: 16px; }
     .user-btn {
-      padding: 14px 20px;
-      border-radius: 14px;
-      border: none;
+      padding: 15px 20px;
+      border-radius: 9999px;
+      border: 1.5px solid var(--line);
       font: inherit;
       font-size: 1rem;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: white;
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.05s ease, box-shadow 0.05s ease;
     }
+    .user-btn:active { transform: translate(2px, 2px); box-shadow: none; }
     .user-btn.omar { background: var(--omar); }
     .user-btn.nini { background: var(--nini); }
     .user-btn.farooq { background: var(--farooq); }
     .modal-card { text-align: left; }
-    .modal-card h3 { margin-bottom: 10px; }
+    .modal-card h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 800; margin-bottom: 12px; }
     .modal-field { margin-bottom: 10px; }
-    .modal-field label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .modal-field label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
     .modal-field input, .modal-field select {
-      width: 100%; padding: 10px; border: 1px solid #ddd3c7; border-radius: 10px; font: inherit;
+      width: 100%; padding: 11px; border: 1.5px solid var(--line); border-radius: 10px; font: inherit; background: #fff;
     }
     .hidden-field { display: none; }
     .attendee-list { display: flex; gap: 8px; flex-wrap: wrap; }
     .attendee-pill {
-      border: 1px solid #ddd3c7; border-radius: 999px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem;
+      border: 1.5px solid var(--line); border-radius: 9999px; padding: 7px 12px; cursor: pointer; font-size: 0.72rem; font-weight: 700; background: #fff;
     }
-    .attendee-pill.active { background: #f3efe9; border-color: #bda992; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+    .attendee-pill.active { background: var(--berry); color: #fff; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
     .day-modal-slot-grid { display: grid; gap: 8px; margin-top: 12px; }
     .day-modal-events { margin-top: 12px; display: grid; gap: 8px; }
-    .day-modal-event { font-size: 0.78rem; padding: 8px 10px; background: #f7f4ef; border-radius: 10px; }
+    .day-modal-event { font-size: 0.78rem; font-weight: 600; padding: 9px 11px; background: var(--bg); border: 1.2px solid var(--line); border-radius: 10px; cursor: pointer; text-align: left; }
     #sync-bar {
       text-align: center;
-      font-size: 0.74rem;
+      font-size: 0.64rem;
       font-weight: 700;
-      padding: 10px 12px 14px;
-      color: #2e7d32;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 12px 12px 16px;
+      color: var(--ink-soft);
     }
     @media (max-width: 768px) {
       body:not(.compact-mode) .dow-header,
@@ -355,11 +417,11 @@
         max-width: 100%;
       }
       body:not(.compact-mode) .slot-btn {
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         padding: 6px 0;
       }
       body:not(.compact-mode) .slot-owners {
-        font-size: 0.48rem;
+        font-size: 0.46rem;
       }
     }
     @media (min-width: 900px) {
@@ -372,7 +434,7 @@
 <div id="user-overlay">
   <div class="panel">
     <h2>👋 Who are you?</h2>
-    <p style="margin-top:6px;color:#777;font-size:0.9rem;">Pick your name to view and update your availability</p>
+    <p style="margin-top:6px;color:var(--muted);font-size:0.9rem;">Pick your name to view and update your availability</p>
     <div class="user-btns">
       <button class="user-btn omar" onclick="selectUser('omar')">Omar 🟠</button>
       <button class="user-btn nini" onclick="selectUser('nini')">Nini 🟣</button>
@@ -465,15 +527,12 @@
 
 // ============================================================
 // Supabase config. The anon key is PUBLIC by design — safe to
-// commit and ship in the browser. GitHub Pages has no env-var
-// dashboard, so these two values live here in the file (same as
-// omar-eniko-calendar). NEVER put the service_role key here.
-// Fill these in with your project's values before deploying:
+// commit and ship in the browser. NEVER put the service_role key here.
 // ============================================================
 const SUPABASE_URL = 'https://cnylugjbbjyqlryhpetf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNueWx1Z2piYmp5cWxyeWhwZXRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTg1MDksImV4cCI6MjA5NDU5NDUwOX0.iMZ8jA9gVqxzxVLzKJ-73ssnll6DPzn_8iMF_-sJgq4';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let loadedOk = false; // guard: never save before a successful load (prevents wiping the shared doc)
+let loadedOk = false;
 
 const STORAGE_KEY = 'rehmans_calendar_user';
 const COMPACT_KEY = 'rehmans_calendar_compact_mode';
@@ -481,7 +540,7 @@ const SLOTS = ['morning', 'afternoon', 'evening'];
 const SLOT_LABELS = { morning: 'AM', afternoon: 'PM', evening: 'Eve' };
 const USERS = ['omar', 'nini', 'farooq'];
 const USER_DISPLAY = { omar: 'Omar 🟠', nini: 'Nini 🟣', farooq: 'Farooq / Steph 🔵' };
-const USER_COLORS = { omar: '#FF6B35', nini: '#9B59B6', farooq: '#3498DB' };
+const USER_COLORS = { omar: '#e93ca3', nini: '#8e3cc9', farooq: '#2f7fb0' };
 const BH_URL = 'https://www.gov.uk/bank-holidays.json';
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=52.2053&longitude=0.1218&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FLondon&forecast_days=14';
 let bankHolidays = {};
@@ -953,12 +1012,6 @@ function renderSyncBar() {
   const tail = pendingSave ? ' | saving…' : '';
   document.getElementById('sync-bar').textContent = parts.join(' | ') + tail;
 }
-
-// ============================================================
-// Data layer — Supabase (single JSON document in calendar_state).
-// Only these two functions changed from the original app; every
-// other function above is byte-for-byte unchanged.
-// ============================================================
 async function loadData() {
   try {
     const { data: row, error } = await db
@@ -970,7 +1023,6 @@ async function loadData() {
     data = migrateData(row && row.data);
     loadedOk = true;
   } catch (e) {
-    // Leave whatever `data` we already have; never flip loadedOk on failure.
   }
 }
 async function refreshData() {
@@ -1002,9 +1054,6 @@ function scheduleSave() {
   saveTimer = setTimeout(doSave, 500);
 }
 async function doSave() {
-  // Guard: don't overwrite the shared document if we never loaded it
-  // (replaces the "reject suspicious empty overwrite" check the old
-  // Netlify proxy did server-side).
   if (!loadedOk) { pendingSave = false; renderSyncBar(); return; }
   try {
     const { error } = await db
@@ -1012,7 +1061,6 @@ async function doSave() {
       .upsert({ id: 1, data, updated_at: new Date().toISOString() }, { onConflict: 'id' });
     if (error) throw error;
   } catch (e) {
-    // swallow — sync bar will show "saving…" cleared below
   } finally {
     pendingSave = false;
     renderSyncBar();
