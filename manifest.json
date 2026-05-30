@@ -4,8 +4,8 @@
   "description": "Shared family availability calendar",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FDF6EE",
-  "theme_color": "#FF6B35",
+  "background_color": "#f6f1e7",
+  "theme_color": "#e93ca3",
   "icons": [
     {
       "src": "/icon-192.png",
