@@ -440,8 +440,8 @@
     .day-modal-slot-grid { display: grid; gap: 8px; margin-top: 12px; }
     .day-modal-events { margin-top: 12px; display: grid; gap: 8px; }
     .day-modal-event { font-size: 0.78rem; font-weight: 600; padding: 9px 11px; background: var(--bg); border: 1.2px solid var(--line); border-radius: 10px; cursor: pointer; text-align: left; }
-    .day-modal-event.kids { cursor: default; }
-    .day-modal-event.kids.skipped .dm-title { text-decoration: line-through; opacity: 0.6; }
+    .day-modal-event.recurring { cursor: default; }
+    .day-modal-event.recurring.skipped .dm-title { text-decoration: line-through; opacity: 0.6; }
     .dm-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
     .dm-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag-chip.skipped { opacity: 0.4; text-decoration: line-through; }
@@ -791,10 +791,8 @@ function renderCalendar() {
     const bh = bankHolidays[key] ? `<span class="tag-chip">BH</span>` : '';
     const eventBadges = events.map(e => {
       const label = e.type === 'caldecote' ? 'Caldecote' : e.type === 'kids-omar' ? 'Omar kids' : escapeHtml(e.title || 'Event');
-      const clickHandler = e.type === 'kids-omar' ? `openDayModal('${key}')` : `openEventModal('${e.id}')`;
-      const titleText = e.type === 'kids-omar'
-        ? `Omar kids, every 2 weeks, Fri eve to Sun eve${e.skipped ? ' (this weekend skipped)' : ''}`
-        : escapeHtml(e.title || '');
+      const clickHandler = e.recurringInstance ? `openDayModal('${key}')` : `openEventModal('${e.id}')`;
+      const titleText = escapeHtml((e.type === 'kids-omar' ? 'Omar kids, every 2 weeks, Fri eve to Sun eve' : (e.title || '')) + (e.skipped ? ' (skipped)' : ''));
       const chipClass = e.type === 'caldecote' ? 'caldecote-chip' : e.type === 'kids-omar' ? 'kids-chip' : '';
       return `<button class="tag-chip ${chipClass}${e.skipped ? ' skipped' : ''}" title="${titleText}" onclick="${clickHandler}">${label}</button>`;
     }).join('');
@@ -926,6 +924,9 @@ function expandEvent(event) {
             occurrenceStart: startIso,
             generatedOccurrence: true,
             skipped,
+            exKey: startIso,
+            recurringInstance: true,
+            skipLabel: 'weekend',
             title: 'Omar kids',
             spanLabel: i === 0 ? 'Fri eve' : i === 1 ? 'Sat' : 'Sun eve'
           });
@@ -937,14 +938,20 @@ function expandEvent(event) {
   }
   if (event.endDate && event.endDate > event.date) {
     const out = [];
+    const exceptions = event.exceptions || [];
     let day = new Date(`${event.date}T12:00:00`);
     const end = new Date(`${event.endDate}T12:00:00`);
     while (day <= end) {
+      const dayIso = isoDate(day);
       out.push({
         ...event,
-        occurrenceDate: isoDate(day),
+        occurrenceDate: dayIso,
         occurrenceStart: event.date,
-        generatedOccurrence: isoDate(day) !== event.date,
+        generatedOccurrence: dayIso !== event.date,
+        skipped: exceptions.includes(dayIso),
+        exKey: dayIso,
+        recurringInstance: true,
+        skipLabel: 'day',
         spanLabel: `${formatDay(event.date)} to ${formatDay(event.endDate)}`
       });
       day = addDays(day, 1);
@@ -986,12 +993,12 @@ function renderDayModal() {
     ? `<label class="confirmed-toggle"><input type="checkbox" ${data.confirmations[activeDayModalDate] ? 'checked' : ''} onchange="toggleConfirmedDay('${activeDayModalDate}')"> CONFIRMED?</label>`
     : '';
   document.getElementById('day-modal-events').innerHTML = confirmedBox + (events.length
-    ? events.map(e => e.type === 'kids-omar'
-        ? `<div class="day-modal-event kids${e.skipped ? ' skipped' : ''}">
-             <div class="dm-title">Omar kids · ${escapeHtml(e.spanLabel || 'weekend')}${e.skipped ? ' · skipped' : ''}</div>
+    ? events.map(e => e.recurringInstance
+        ? `<div class="day-modal-event recurring${e.skipped ? ' skipped' : ''}">
+             <div class="dm-title">${escapeHtml(e.title)}${e.type === 'kids-omar' && e.spanLabel ? ' · ' + escapeHtml(e.spanLabel) : ''}${e.skipped ? ' · skipped' : ''}</div>
              <div class="dm-actions">
-               <button class="event-btn" onclick="toggleKidsException('${e.id}','${e.occurrenceStart}')">${e.skipped ? 'Restore this weekend' : 'Skip this weekend'}</button>
-               <button class="event-btn" onclick="openEventModalFromDay('${e.id}')">Edit rule</button>
+               <button class="event-btn" onclick="toggleSkipOccurrence('${e.id}','${e.exKey}')">${e.skipped ? `Restore this ${e.skipLabel}` : `Skip this ${e.skipLabel}`}</button>
+               <button class="event-btn" onclick="openEventModalFromDay('${e.id}')">Edit event</button>
              </div>
            </div>`
         : `<button class="day-modal-event" onclick="openEventModalFromDay('${e.id}')">${escapeHtml(e.title)}</button>`
@@ -1107,13 +1114,13 @@ function toggleCaldecoteWeekends() {
   scheduleSave();
   renderAll();
 }
-function toggleKidsException(eventId, startIso) {
+function toggleSkipOccurrence(eventId, exKey) {
   const event = data.events.find(e => e.id === eventId);
   if (!event) return;
   if (!Array.isArray(event.exceptions)) event.exceptions = [];
-  const i = event.exceptions.indexOf(startIso);
+  const i = event.exceptions.indexOf(exKey);
   if (i >= 0) event.exceptions.splice(i, 1);
-  else event.exceptions.push(startIso);
+  else event.exceptions.push(exKey);
   scheduleSave();
   renderAll();
   if (activeDayModalDate) renderDayModal();
